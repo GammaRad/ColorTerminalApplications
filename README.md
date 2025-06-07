@@ -1,5 +1,5 @@
 # SnakeTerminalPython
-Full color snake game with live user input right in the terminal. 7 Lines (optimized, that is why its so small), uses minimal modules, and game rendering is all in puure python. 
+Full color snake game with live user input right in the terminal. 7 Lines (optimized, that is why its so small), uses minimal modules, and game rendering is all in pure python. 
 # What is needed to run this program
 This is a program written in python 3.9.13 . If you have a newer version of python, I doubt things will break but keep it in mind. 
 The keyboard functionality requires your device to be compatible with the msvcrt module. I am fairly certain msvcrt only works for WINDOWS operating system
