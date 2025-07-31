@@ -1,4 +1,4 @@
-from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,implicit_multiplication_application,convert_xor, function_exponentiation)
+from sympy.parsing.sympy_parser import (parse_expr, standard_transformations ,implicit_multiplication_application,convert_xor, function_exponentiation)
 from sympy import evalf
 from msvcrt import kbhit, getch
 cursorXpos = 1
@@ -20,7 +20,7 @@ screenArray =[
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
-    ['|',' ',' ',' ','+',' ',' ',' ','|',' ',' ',' ','_',' ',' ',' ','|',' ',' ',' ','x',' ',' ',' ','|',' ',' ',' ','÷',' ',' ',' ','|',' ','E','v','a','l',' ',' ','|',],
+    ['|',' ',' ',' ','+',' ',' ',' ','|',' ',' ',' ','_',' ',' ',' ','|',' ',' ',' ','ˣ',' ',' ',' ','|',' ',' ',' ','÷',' ',' ',' ','|',' ','E','v','a','l',' ',' ','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','P','R','O','M','P','T',':',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|',],
@@ -32,12 +32,12 @@ screenArray =[
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
-    ['|',' ','s','i','n','h',' ',' ','|',' ',' ','c','o','s','h',' ','|',' ',' ','t','a','n','h',' ','|',' ','^','(','1','÷',' ',' ','|',' ',' ','a','b','s',' ',' ','|',],
-    ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','h','o','t',' ','k','e','y','|',' ',' ',' ',' ',' ',' ',' ','|',],
+    ['|',' ','s','i','n','h',' ',' ','|',' ','c','o','s','h',' ',' ','|',' ','t','a','n','h',' ',' ','|',' ','^','(','1','÷',' ',' ','|',' ',' ','a','b','s',' ',' ','|',],
+    ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','n','t','h','r','o','o','t','|',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|',' ',' ',' ','e',' ',' ',' ','|',' ',' ',' ','π',' ',' ',' ','|',' ',' ',' ','a',' ',' ',' ','|',' ',' ',' ','!',' ',' ',' ','|',' ',' ',' ','i',' ',' ',' ','|',],
-    ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','i','n','v','e','r','s','e','|','(','Π','f','u','n','c',')','|','c','o','m','p','l','e','x','|',],
+    ['|',' ',' ',' ',' ',' '," ",' ','|',' ',' ','p','i',' ',' ',' ','|','i','n','v','e','r','s','e','|',' ',' ',' ',' ',' ',' ',' ','|','c','o','m','p','l','e','x','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
 ] 
 screenArrayLength = len(screenArray)
@@ -46,7 +46,7 @@ screenArrayWidth = len(screenArray[0])
 def updateScreenArray(moveCursorToTop):
     screenBufferList=[]
     print('\033[?25l',end='')
-    if moveCursorToTop == True:print(f"\033[{screenArrayLength+2}F\n", end="")
+    if moveCursorToTop == True:print(f"\033[{screenArrayLength+1}F\n", end="") #do +2 instead of +1 if the last print statement at the end of this function is uncommented
     a = 0
     while a < screenArrayLength:
         for idx, element in enumerate(screenArray[a]):
@@ -56,16 +56,19 @@ def updateScreenArray(moveCursorToTop):
         a += 1
     for i in screenBufferList:
         print(i,end='')
-    print('\033[K'+MathExpression)
+    #print('\033[K'+MathExpression)
 
 
 def evaluate_expression(expr):
     expr = expr.replace('÷', '/')
-    expr = expr.replace('x', '*')
+    expr = expr.replace('ˣ', '*')
     expr = expr.replace('e', '2.71828182845904523536028747')
     expr = expr.replace('π', '3.14159265358979323846264338')
-    #expr = expr.replace('i', 'I')
-
+    try:
+        _=list(expr).index('I')
+        expr = expr.replace('i', 'I')
+    except ValueError:
+        pass
     transformations = standard_transformations + (implicit_multiplication_application,convert_xor,function_exponentiation)
     try:
         parsed = parse_expr(expr, transformations=transformations, evaluate=True)
@@ -99,7 +102,7 @@ def getCharacter():
     elif cursorYpos > 9 and cursorYpos < 14:
         if cursorXpos > 0 and cursorXpos < 8: return '+'
         elif cursorXpos > 8 and cursorXpos < 16: return '-'
-        elif cursorXpos > 16 and cursorXpos < 24: return 'x'
+        elif cursorXpos > 16 and cursorXpos < 24: return 'ˣ'
         elif cursorXpos > 24 and cursorXpos < 32: return '÷'
         elif cursorXpos > 32 and cursorXpos < 40: return 'Eval'
     elif cursorYpos > 13 and cursorYpos < 18:
@@ -136,7 +139,6 @@ CursorUp=lambda y:y-1 if y>1 else y
 CursorDown=lambda y:y+1 if y < screenArrayLength - 1 else y
 CursorLeft=lambda x:x-1 if x>1 else x
 CursorRight=lambda x:x+1 if x<screenArrayWidth-1 else x
-
 while True:
     if kbhit():
         key = getch().decode()
@@ -221,5 +223,3 @@ while True:
                     screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character
                     PromptIndex+=1
         updateScreenArray(True)
-
-print(screenArrayWidth)
