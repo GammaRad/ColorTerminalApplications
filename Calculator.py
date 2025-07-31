@@ -1,12 +1,7 @@
 from sympy.parsing.sympy_parser import (parse_expr, standard_transformations ,implicit_multiplication_application,convert_xor, function_exponentiation)
 from sympy import evalf
 from msvcrt import kbhit, getch
-cursorXpos = 1
-cursorYpos = 2 
-MathExpression = ''
-PromptIndex = 17  
-PromptLevel=15
-AnswerIndex = 17
+
 PalleteList = ['\033[48;2;227;9;9m','\033[48;2;0;0;0m','\033[38;2;235;231;14m']
 screenArray =[
     [f'{PalleteList[1]} {PalleteList[2]}','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_',' ',],
@@ -40,8 +35,22 @@ screenArray =[
     ['|',' ',' ',' ',' ',' '," ",' ','|',' ',' ','p','i',' ',' ',' ','|','i','n','v','e','r','s','e','|',' ',' ',' ',' ',' ',' ',' ','|','c','o','m','p','l','e','x','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
 ] 
+cursorXpos = 1
+cursorYpos = 2 
+MathExpression = ''
+PromptIndex = 17  
+PromptLevel=15
+AnswerIndex = 17
 screenArrayLength = len(screenArray)
 screenArrayWidth = len(screenArray[0])
+button_map = {
+    (2, 6): [(0, 4, '0'), (4, 8, '1'), (8, 12, '2'), (12, 16, '3'),(16, 20, '4'), (20, 24, '5'), (24, 28, '6'), (28, 32, '7'),(32, 36, '8'), (36, 40, '9')],
+    (5, 10): [(0, 8, '('), (8, 16, ')'), (16, 24, '^'),(24, 32, '.'), (32, 40, 'del')],
+    (9, 14): [(0, 8, '+'), (8, 16, '-'), (16, 24, 'ˣ'),(24, 32, '÷'), (32, 40, 'Eval')],
+    (13, 18): [(0, 8, 'sin'), (8, 16, 'cos'), (16, 47, 'clear'),],
+    (17, 22): [(0, 8, 'tan'), (8, 16, 'log'), (16, 47, 'PrevAnswer')],
+    (21, 26): [(0, 8, 'sinh'), (8, 16, 'cosh'), (16, 24, 'tanh'),(24, 32, '^(1÷'), (32, 40, 'abs')],
+    (25, 30): [(0, 8, 'e'), (8, 16, 'π'), (16, 24, 'a'),(24, 32, '!'), (32, 40, 'i')]}
 
 def updateScreenArray(moveCursorToTop):
     screenBufferList=[]
@@ -57,7 +66,6 @@ def updateScreenArray(moveCursorToTop):
     for i in screenBufferList:
         print(i,end='')
     #print('\033[K'+MathExpression)
-
 
 def evaluate_expression(expr):
     expr = expr.replace('÷', '/')
@@ -82,49 +90,11 @@ def evaluate_expression(expr):
     except Exception as e:pass
 
 def getCharacter():
-    if cursorYpos > 2 and cursorYpos < 6:
-        if cursorXpos > 0 and cursorXpos < 4: return '0'
-        elif cursorXpos > 4 and cursorXpos < 8: return '1'
-        elif cursorXpos > 8 and cursorXpos < 12: return '2'
-        elif cursorXpos > 12 and cursorXpos < 16: return '3'
-        elif cursorXpos > 16 and cursorXpos < 20: return '4'
-        elif cursorXpos > 20 and cursorXpos < 24: return '5'
-        elif cursorXpos > 24 and cursorXpos < 28: return '6'
-        elif cursorXpos > 28 and cursorXpos < 32: return '7'
-        elif cursorXpos > 32 and cursorXpos < 36: return '8'
-        elif cursorXpos > 36 and cursorXpos < 40: return '9'
-    elif cursorYpos > 5 and cursorYpos < 10:
-        if cursorXpos > 0 and cursorXpos < 8: return '('
-        elif cursorXpos > 8 and cursorXpos < 16: return ')'
-        elif cursorXpos > 16 and cursorXpos < 24: return '^'
-        elif cursorXpos > 24 and cursorXpos < 32: return '.'
-        elif cursorXpos > 32 and cursorXpos < 40: return 'del'
-    elif cursorYpos > 9 and cursorYpos < 14:
-        if cursorXpos > 0 and cursorXpos < 8: return '+'
-        elif cursorXpos > 8 and cursorXpos < 16: return '-'
-        elif cursorXpos > 16 and cursorXpos < 24: return 'ˣ'
-        elif cursorXpos > 24 and cursorXpos < 32: return '÷'
-        elif cursorXpos > 32 and cursorXpos < 40: return 'Eval'
-    elif cursorYpos > 13 and cursorYpos < 18:
-        if cursorXpos > 0 and cursorXpos < 8: return 'sin'
-        elif cursorXpos > 8 and cursorXpos < 16: return 'cos'
-        elif cursorXpos > 16 and cursorXpos < 47: return 'clear'
-    elif cursorYpos > 17 and cursorYpos < 22:
-        if cursorXpos > 0 and cursorXpos < 8: return 'tan'
-        elif cursorXpos > 8 and cursorXpos < 16: return 'log'
-        elif cursorXpos > 16 and cursorXpos < 47: return 'PrevAnswer'
-    elif cursorYpos > 21 and cursorYpos < 26:
-        if cursorXpos > 0 and cursorXpos < 8: return 'sinh'
-        elif cursorXpos > 8 and cursorXpos < 16: return 'cosh'
-        elif cursorXpos > 16 and cursorXpos < 24: return 'tanh'
-        elif cursorXpos > 24 and cursorXpos < 32: return '^(1÷'
-        elif cursorXpos > 32 and cursorXpos < 40: return 'abs'
-    elif cursorYpos > 25 and cursorYpos < 30:
-        if cursorXpos > 0 and cursorXpos < 8: return 'e'
-        elif cursorXpos > 8 and cursorXpos < 16: return 'π'
-        elif cursorXpos > 16 and cursorXpos < 24: return 'a'
-        elif cursorXpos > 24 and cursorXpos < 32: return '!'
-        elif cursorXpos > 32 and cursorXpos < 40: return 'i'
+    for (ymin, ymax), entries in button_map.items():
+        if ymin < cursorYpos < ymax:
+            for xmin, xmax, char in entries:
+                if xmin < cursorXpos < xmax:
+                    return char
     return 'NotInBox'
 
 print('\033[2J')
@@ -143,8 +113,7 @@ while True:
     if kbhit():
         key = getch().decode()
         if key == 'w':
-            if cursorYpos==1:
-               cursorYpos=screenArrayLength-1
+            if cursorYpos==1:cursorYpos=screenArrayLength-1
             else: cursorYpos = CursorUp(cursorYpos)
         elif key == 'a':
            if cursorXpos ==1:cursorXpos=39
@@ -170,7 +139,6 @@ while True:
                         PromptIndex = 39
                         MathExpression = MathExpression[:-1]
                         screenArray[PromptLevel][PromptIndex - 1] = f'{PalleteList[1]} '
-
             elif character == 'Eval' or key=='e':
                 try:
                     if MathExpression=='ERROR':continue
@@ -228,3 +196,5 @@ while True:
                     screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character
                     PromptIndex+=1
         updateScreenArray(True)
+
+print('\033[?25h\033[0m')#Show Cursor+Reset ANSI formatting
