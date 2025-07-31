@@ -143,13 +143,18 @@ while True:
     if kbhit():
         key = getch().decode()
         if key == 'w':
-           cursorYpos = CursorUp(cursorYpos)
+            if cursorYpos==1:
+               cursorYpos=screenArrayLength-1
+            else: cursorYpos = CursorUp(cursorYpos)
         elif key == 'a':
-           cursorXpos=CursorLeft(cursorXpos)
+           if cursorXpos ==1:cursorXpos=39
+           else:cursorXpos=CursorLeft(cursorXpos)
         elif key == 's':
-           cursorYpos=CursorDown(cursorYpos)
+           if cursorYpos==screenArrayLength-1:cursorYpos=1
+           else:cursorYpos=CursorDown(cursorYpos)
         elif key == 'd':
-           cursorXpos= CursorRight(cursorXpos)
+           if cursorXpos==39:cursorXpos=1
+           else:cursorXpos= CursorRight(cursorXpos)
         elif key =='o':break
         elif key == '\r' or key == 'q' or key=='e' or key =='x':
             character = getCharacter()
