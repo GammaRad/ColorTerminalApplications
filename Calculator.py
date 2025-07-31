@@ -71,7 +71,7 @@ def evaluate_expression(expr):
             except ValueError:pass
         
         return str(result) if exponent >-10 else '0'
-    except Exception as e:return f"{e}"
+    except Exception as e:pass
 
 def getCharacter():
     if cursorYpos > 2 and cursorYpos < 6:
