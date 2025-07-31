@@ -4,7 +4,8 @@ from msvcrt import kbhit, getch
 cursorXpos = 1
 cursorYpos = 2 
 MathExpression = ''
-PromptIndex = 17
+PromptIndex = 17  
+PromptLevel=15
 AnswerIndex = 17
 PalleteList = ['\033[48;2;227;9;9m','\033[48;2;0;0;0m','\033[38;2;235;231;14m']
 screenArray =[
@@ -31,12 +32,12 @@ screenArray =[
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
-    ['|',' ',' ','s','i','n','h',' ','|',' ',' ','c','o','s','h',' ','|',' ',' ','t','a','n','h',' ','|',' ','^','(','1','÷',' ',' ','|',' ',' ','a','b','s',' ',' ','|',],
+    ['|',' ','s','i','n','h',' ',' ','|',' ',' ','c','o','s','h',' ','|',' ',' ','t','a','n','h',' ','|',' ','^','(','1','÷',' ',' ','|',' ',' ','a','b','s',' ',' ','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','h','o','t',' ','k','e','y','|',' ',' ',' ',' ',' ',' ',' ','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
     ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
-    ['|',' ',' ',' ','e',' ',' ',' ','|',' ',' ',' ','π',' ',' ',' ','|',' ',' ',' ','a',' ',' ',' ','|',' ',' ',' ','!',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|',],
-    ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','i','n','v','e','r','s','e','|','(','Π','f','u','n','c',')','|',' ',' ',' ',' ',' ',' ',' ','|',],
+    ['|',' ',' ',' ','e',' ',' ',' ','|',' ',' ',' ','π',' ',' ',' ','|',' ',' ',' ','a',' ',' ',' ','|',' ',' ',' ','!',' ',' ',' ','|',' ',' ',' ','i',' ',' ',' ','|',],
+    ['|',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ','|','i','n','v','e','r','s','e','|','(','Π','f','u','n','c',')','|','c','o','m','p','l','e','x','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
 ] 
 screenArrayLength = len(screenArray)
@@ -45,7 +46,7 @@ screenArrayWidth = len(screenArray[0])
 def updateScreenArray(moveCursorToTop):
     screenBufferList=[]
     print('\033[?25l',end='')
-    if moveCursorToTop == True:print(f"\033[{screenArrayLength+1}F\n", end="")
+    if moveCursorToTop == True:print(f"\033[{screenArrayLength+2}F\n", end="")
     a = 0
     while a < screenArrayLength:
         for idx, element in enumerate(screenArray[a]):
@@ -55,12 +56,16 @@ def updateScreenArray(moveCursorToTop):
         a += 1
     for i in screenBufferList:
         print(i,end='')
+    print('\033[K'+MathExpression)
+
 
 def evaluate_expression(expr):
     expr = expr.replace('÷', '/')
     expr = expr.replace('x', '*')
     expr = expr.replace('e', '2.71828182845904523536028747')
     expr = expr.replace('π', '3.14159265358979323846264338')
+    #expr = expr.replace('i', 'I')
+
     transformations = standard_transformations + (implicit_multiplication_application,convert_xor,function_exponentiation)
     try:
         parsed = parse_expr(expr, transformations=transformations, evaluate=True)
@@ -116,7 +121,7 @@ def getCharacter():
         elif cursorXpos > 8 and cursorXpos < 16: return 'π'
         elif cursorXpos > 16 and cursorXpos < 24: return 'a'
         elif cursorXpos > 24 and cursorXpos < 32: return '!'
-        elif cursorXpos > 32 and cursorXpos < 40: return ' '
+        elif cursorXpos > 32 and cursorXpos < 40: return 'i'
     return 'NotInBox'
 
 print('\033[2J')
@@ -150,44 +155,71 @@ while True:
             if character == 'del' or key=='x':
                 if PromptIndex>17:
                     MathExpression = MathExpression[:-1]
-                    screenArray[16][PromptIndex - 1] = f'{PalleteList[1]} '
+                    screenArray[PromptLevel][PromptIndex - 1] = f'{PalleteList[1]} '
                     PromptIndex -=1
+                elif PromptIndex==17:
+                    if PromptLevel>15:
+                        PromptLevel-=1
+                        PromptIndex = 39
+                        MathExpression = MathExpression[:-1]
+                        screenArray[PromptLevel][PromptIndex - 1] = f'{PalleteList[1]} '
+
             elif character == 'Eval' or key=='e':
                 try:
-                    if MathExpression=='ERROR':
-                        continue
-                    answer = evaluate_expression(MathExpression)[0:23]
+                    if MathExpression=='ERROR':continue
+                    answer = evaluate_expression(MathExpression).replace('I', 'i').replace('*',"")
                     answerList = list(answer)
-                    for i in range(17, len(screenArray[20])-1):screenArray[20][i] = ' '
+                    for i in range(17, screenArrayWidth-1):screenArray[20][i] = ' '
                     AnswerIndex = 17
                     for char in answerList:
                         if AnswerIndex < len(screenArray[20]):
                             screenArray[20][AnswerIndex] = char
                             AnswerIndex += 1
                     MathExpression = ''
-                    PromptIndex = 17  
-                    for i in range(17, len(screenArray[16])-1):
-                        screenArray[16][i] = ' '
+                    for j in range(15,18):
+                        for i in range(17, screenArrayWidth-1):screenArray[j][i] = ' '
+                        PromptIndex = 17
+                        PromptLevel=15
                 except Exception:pass
             elif character == 'PrevAnswer':
                 for char in answerList:
-                    if PromptIndex < len(screenArray[16]) - 1:
-                        screenArray[16][PromptIndex] = PalleteList[1] + PalleteList[2] + char
+                    if PromptIndex < screenArrayWidth - 2: 
+                        screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + char
                         MathExpression += char
                         PromptIndex += 1
+                    elif PromptLevel <18:
+                        PromptLevel+=1
+                        PromptIndex=17
+                        screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + char
+                        MathExpression += char
             elif character=='clear':
-                for i in range(17, len(screenArray[16])-1):screenArray[16][i] = ' '
-                PromptIndex = 17
+                for j in range(15,18):
+                    for i in range(17, screenArrayWidth-1):screenArray[j][i] = ' '
+                    PromptIndex = 17
+                    PromptLevel=15
+                MathExpression=''
             elif len(character) >= 3:
                 PromptList = list(character)
                 for element in PromptList:
-                    if PromptIndex < len(screenArray[16]) - 1: 
-                        screenArray[16][PromptIndex] = PalleteList[1] + PalleteList[2] + element
+                    if PromptIndex < screenArrayWidth - 2: 
+                        screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + element
                         MathExpression += element
                         PromptIndex += 1
+                    elif PromptLevel <18:
+                        PromptLevel+=1
+                        PromptIndex=17
+                        screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + element
+                        MathExpression += element
             elif (key=='\r' or key =='q') and character != 'NotInBox' :
                 MathExpression+=character
-                screenArray[16][PromptIndex] = PalleteList[1]+PalleteList[2]+character
-                PromptIndex +=1
+                if PromptIndex < screenArrayWidth - 2: 
+                    screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character
+                    PromptIndex += 1
+                elif PromptLevel <18:
+                    PromptLevel+=1
+                    PromptIndex=17
+                    screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character
+                    PromptIndex+=1
         updateScreenArray(True)
 
+print(screenArrayWidth)
