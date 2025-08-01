@@ -121,7 +121,6 @@ for i in range(screenArrayLength):
         screenArray[i][j]=f"{PalleteList[1]}{PalleteList[2]}{screenArray[i][j]}\033[0m"
 
 currentParensDiff=0
-
 updateScreenArray(False)
 
 while True:
