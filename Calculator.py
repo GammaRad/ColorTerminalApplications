@@ -35,6 +35,7 @@ screenArray =[
     ['|',' ',' ',' ',' ',' '," ",' ','|',' ',' ','p','i',' ',' ',' ','|','i','n','v','e','r','s','e','|',' ',' ',' ',' ',' ',' ',' ','|','c','o','m','p','l','e','x','|',],
     ['|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|','_','_','_','_','_','_','_','|',],
 ] 
+
 numLParens=0
 numRParens=0
 cursorXpos = 1
@@ -42,6 +43,8 @@ cursorYpos = 2
 MathExpression = ''
 PromptIndex = 17  
 PromptLevel=15
+NeededParensIndex=18
+NeededParensLevel=15
 AnswerIndex = 17
 screenArrayLength = len(screenArray)
 screenArrayWidth = len(screenArray[0])
@@ -69,8 +72,7 @@ def updateScreenArray(moveCursorToTop):
         a += 1
     for i in screenBufferList:
         print(i,end='')
-
-    #print('\033[K')
+    print('\033[K')
 
 def evaluate_expression(expr):
     expr = expr.replace('÷', '/')
@@ -90,7 +92,6 @@ def evaluate_expression(expr):
         if 'e' in str(result):
             try:exponent= int(str(result).split('e')[1])
             except ValueError:pass
-        
         return str(result) if exponent >-10 else '0'
     except Exception as e:pass
 
@@ -108,7 +109,7 @@ print("Use 'a' to type inverse trig functions. Eg: asin=inverse sin,atan=inverse
 print("The ! operator is the factorial operator exteneded to the reals excluding neagtive integers (Pi function)")
 print("The log function is in base e (natural log)")
 print("WASD to move cursor. Enter or q to select button.")
-print("Eval:e Del:x Off:o Append Needed Parentheses: ` (un shifted ~ key)")
+print("Eval:e Del:x Off:o Append Suggestion Parentheses: ` (un shifted ~ key)")
 print("Selecting the answer will append the answer into the prompt")
 print("Selecting the prompt will clear the prompt")
 CursorUp=lambda y:y-1 if y>1 else y
@@ -119,6 +120,8 @@ for i in range(screenArrayLength):
     for j in range(screenArrayWidth):
         screenArray[i][j]=f"{PalleteList[1]}{PalleteList[2]}{screenArray[i][j]}\033[0m"
 
+currentParensDiff=0
+
 updateScreenArray(False)
 
 while True:
@@ -128,18 +131,19 @@ while True:
         for char in MathExpression:
             if char=='(':numLParens+=1
             elif char==')':numRParens+=1
+        currentParensDiff=numLParens-numRParens
         key = getch().decode()
         if key == 'w':
             if cursorYpos==1:cursorYpos=screenArrayLength-1
             else: cursorYpos = CursorUp(cursorYpos)
         elif key == 'a':
-           if cursorXpos ==1:cursorXpos=39
+           if cursorXpos ==1:cursorXpos=screenArrayWidth-2
            else:cursorXpos=CursorLeft(cursorXpos)
         elif key == 's':
            if cursorYpos==screenArrayLength-1:cursorYpos=1
            else:cursorYpos=CursorDown(cursorYpos)
         elif key == 'd':
-           if cursorXpos==39:cursorXpos=1
+           if cursorXpos==screenArrayWidth-2:cursorXpos=1
            else:cursorXpos= CursorRight(cursorXpos)
         elif key =='o':break
         elif key == '\r' or key == 'q' or key=='e' or key =='x' or key=='`':
@@ -161,21 +165,21 @@ while True:
                     if MathExpression=='ERROR':continue
                     answer = evaluate_expression(MathExpression).replace('I', 'i').replace('*',"")
                     answerList = list(answer)
-                    for i in range(17, screenArrayWidth-1):screenArray[20][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
+                    for i in range(17, 40):screenArray[20][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
                     AnswerIndex = 17
                     for char in answerList:
-                        if AnswerIndex < len(screenArray[20]):
+                        if AnswerIndex < screenArrayWidth-2:
                             screenArray[20][AnswerIndex] =PalleteList[1] + PalleteList[2] + char+'\033[0m'
                             AnswerIndex += 1
                     MathExpression = ''
                     for j in range(15,19):
-                        for i in range(17, screenArrayWidth-1):screenArray[j][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
+                        for i in range(17, 40):screenArray[j][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
                         PromptIndex = 17
                         PromptLevel=15
                 except Exception:pass
             elif character == 'PrevAnswer':
                 for char in answerList:
-                    if PromptIndex < screenArrayWidth - 2: 
+                    if PromptIndex < 39: 
                         screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + char +'\033[0m'
                         MathExpression += char
                         PromptIndex += 1
@@ -186,15 +190,15 @@ while True:
                         MathExpression += char
             elif character=='clear':
                 for j in range(15,19):
-                    for i in range(17, screenArrayWidth-1):screenArray[j][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
+                    for i in range(17, 40):screenArray[j][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
                     PromptIndex = 17
                     PromptLevel=15
                 MathExpression=''
             elif (len(character) >= 3) or key=='`':
-                if key=='`':character=')'*(numLParens-numRParens)
+                if key=='`':character=')'*(currentParensDiff)
                 PromptList = list(character)
                 for element in PromptList:
-                    if PromptIndex < screenArrayWidth - 2: 
+                    if PromptIndex < 39: 
                         screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + element+'\033[0m'
                         MathExpression += element
                         PromptIndex += 1
@@ -204,10 +208,9 @@ while True:
                         screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + element+'\033[0m'
                         PromptIndex+=1
                         MathExpression += element
-                
             elif (key=='\r' or key =='q') and character != 'NotInBox' :
                 MathExpression+=character
-                if PromptIndex < screenArrayWidth - 2: 
+                if PromptIndex < 39: 
                     screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character+'\033[0m'
                     PromptIndex += 1
                 elif PromptLevel <18:
@@ -215,7 +218,37 @@ while True:
                     PromptIndex=17
                     screenArray[PromptLevel][PromptIndex] = PalleteList[1] + PalleteList[2] + character +'\033[0m'
                     PromptIndex+=1
-        updateScreenArray(True)
+        for level in range(15, 19):
+            for index in range(17, 40):
+                if screenArray[level][index] == PalleteList[1] + '\033[38;2;140;140;140m' + ')' + '\033[0m':
+                    screenArray[level][index] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
+        numLParens=0
+        numRParens=0
+        for char in MathExpression:
+            if char=='(':numLParens+=1
+            elif char==')':numRParens+=1
+        currentParensDiff=numLParens-numRParens
+        if currentParensDiff !=0:
+            originalPromptIndex = PromptIndex
+            originalPromptLevel = PromptLevel
+            tempPromptIndex = PromptIndex
+            tempPromptLevel = PromptLevel
+            for _ in range(currentParensDiff):
+                if tempPromptIndex < 39:
+                    screenArray[tempPromptLevel][tempPromptIndex] = PalleteList[1] + '\033[38;2;140;140;140m' + ')' + '\033[0m'
+                    tempPromptIndex += 1
+                elif tempPromptLevel < 18:
+                    tempPromptLevel += 1
+                    tempPromptIndex = 17
+                    screenArray[tempPromptLevel][tempPromptIndex] = PalleteList[1] + '\033[38;2;140;140;140m' + ')' + '\033[0m'
+                    tempPromptIndex += 1
+            updateScreenArray(True)
+            PromptIndex = originalPromptIndex
+            PromptLevel = originalPromptLevel
+        else:updateScreenArray(True)
+
+         
 
 
 print('\033[?25h\033[0m')#Show Cursor+Reset ANSI formatting
+
