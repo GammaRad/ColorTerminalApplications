@@ -48,6 +48,8 @@ NeededParensLevel=15
 AnswerIndex = 17
 screenArrayLength = len(screenArray)
 screenArrayWidth = len(screenArray[0])
+answerList=[]
+
 button_map = {
     (2, 6): [(0, 4, '0'), (4, 8, '1'), (8, 12, '2'), (12, 16, '3'),(16, 20, '4'), (20, 24, '5'), (24, 28, '6'), (28, 32, '7'),(32, 36, '8'), (36, 40, '9')],
     (5, 10): [(0, 8, '('), (8, 16, ')'), (16, 24, '^'),(24, 32, '.'), (32, 40, 'del')],
@@ -72,7 +74,7 @@ def updateScreenArray(moveCursorToTop):
         a += 1
     for i in screenBufferList:
         print(i,end='')
-    print('\033[K')
+    #print('\033[K')
 
 def evaluate_expression(expr):
     expr = expr.replace('÷', '/')
@@ -105,13 +107,14 @@ def getCharacter():
 
 print('\033[2J')
 print('\033[0;0H')
-print("Use 'a' to type inverse trig functions. Eg: asin=inverse sin,atan=inverse tangent,acosh=inverse hyperbolic cosine")
-print("The ! operator is the factorial operator exteneded to the reals excluding neagtive integers (Pi function)")
-print("The log function is in base e (natural log)")
 print("WASD to move cursor. Enter or q to select button.")
-print("Eval:e Del:x Off:o Append Suggestion Parentheses: ` (un shifted ~ key)")
+print("Eval:e Del:x Off:o Append Suggestion Parentheses:f")
 print("Selecting the answer will append the answer into the prompt")
 print("Selecting the prompt will clear the prompt")
+print("Use 'a' to type inverse trig functions. Eg: asin=arcsin,atan=arctan,acosh=arccosh")
+print("The ! operator is the factorial operator exteneded to the reals excluding neagtive integers (Pi function)")
+print("The log function is in base e (natural log)")
+
 CursorUp=lambda y:y-1 if y>1 else y
 CursorDown=lambda y:y+1 if y < screenArrayLength - 1 else y
 CursorLeft=lambda x:x-1 if x>1 else x
@@ -121,6 +124,7 @@ for i in range(screenArrayLength):
         screenArray[i][j]=f"{PalleteList[1]}{PalleteList[2]}{screenArray[i][j]}\033[0m"
 
 currentParensDiff=0
+
 updateScreenArray(False)
 
 while True:
@@ -145,9 +149,9 @@ while True:
            if cursorXpos==screenArrayWidth-2:cursorXpos=1
            else:cursorXpos= CursorRight(cursorXpos)
         elif key =='o':break
-        elif key == '\r' or key == 'q' or key=='e' or key =='x' or key=='`':
+        elif key == '\r' or key == 'q' or key=='e' or key =='x' or key=='f':
             character = getCharacter()
-            if character=='NotInBox' and key!='`':continue
+            if character=='NotInBox' and key!='f':continue
             if character == 'del' or key=='x':
                 if PromptIndex>17:
                     MathExpression = MathExpression[:-1]
@@ -161,7 +165,6 @@ while True:
                         screenArray[PromptLevel][PromptIndex - 1] =f"{PalleteList[1]}{PalleteList[2]} \033[0m"
             elif character == 'Eval' or key=='e':
                 try:
-                    if MathExpression=='ERROR':continue
                     answer = evaluate_expression(MathExpression).replace('I', 'i').replace('*',"")
                     answerList = list(answer)
                     for i in range(17, 40):screenArray[20][i] = f"{PalleteList[1]}{PalleteList[2]} \033[0m"
@@ -193,8 +196,8 @@ while True:
                     PromptIndex = 17
                     PromptLevel=15
                 MathExpression=''
-            elif (len(character) >= 3) or key=='`':
-                if key=='`':character=')'*(currentParensDiff)
+            elif (len(character) >= 3) or key=='f':
+                if key=='f':character=')'*(currentParensDiff)
                 PromptList = list(character)
                 for element in PromptList:
                     if PromptIndex < 39: 
@@ -245,9 +248,6 @@ while True:
             PromptIndex = originalPromptIndex
             PromptLevel = originalPromptLevel
         else:updateScreenArray(True)
-
-         
-
-
+       
 print('\033[?25h\033[0m')#Show Cursor+Reset ANSI formatting
 
