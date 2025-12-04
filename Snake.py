@@ -8,7 +8,7 @@ while True:                                                                     
     from time import sleep; sleep(0.08 if abs(dy) else 0.04)         
 
 
-'''                VERSION 2:
+'''                READABLE VERSION :
 from random import randint 
 from msvcrt import kbhit, getch
 from time import sleep 
