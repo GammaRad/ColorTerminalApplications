@@ -298,66 +298,64 @@ for (int j = 0; j < BOARD_WIDTH; j++) strcpy(gameArray[i][j], backgroundPixel);
 createNewBlock(block);
 }
 int main() {
-srand(time(NULL));
-init_terminal();
-TetrisBlock currentBlock;
-initGame(&currentBlock);
-int tick_counter = 0;
-int gravity_ticks = 10;
-int stateLoss = 0;
-while (gameRun) {
-if (!stateLoss && checkLoss(&currentBlock)) {
-stateLoss = 1;
-printGame(1, &currentBlock);
-}
-if (kbhit()) {
-char ch = getchar();
-// Standard Menu Actions
-if (ch == 'x' || ch == 27) { // 'x' key or ESC key
-gameRun = 0;
-break;
-}
-if (stateLoss && ch == 'r') {
-stateLoss = 0;
-initGame(&currentBlock);
-tick_counter = 0;
-continue;
-}
-// Gameplay inputs (disabled if game is over)
-if (!stateLoss) {
-if (ch == 's') {
-if (!updateBlock(&currentBlock, "down")) {
-clearFullRow();
-createNewBlock(&currentBlock);
-}
-tick_counter = 0;
-}
-else if (ch == 'a') updateBlock(&currentBlock, "left");
-else if (ch == 'd') updateBlock(&currentBlock, "right");
-else if (ch == 'q') updateBlock(&currentBlock, "c");
-else if (ch == 'e') updateBlock(&currentBlock, "cc");
-else if (ch == ' ') {
-updateBlock(&currentBlock, "space");
-clearFullRow();
-createNewBlock(&currentBlock);
-tick_counter = 0;
-}
-}
-}
-if (!stateLoss) {
-tick_counter++;
-if (tick_counter >= gravity_ticks) {
-tick_counter = 0;
-if (!updateBlock(&currentBlock, "down")) {
-clearFullRow();
-createNewBlock(&currentBlock);
-}
-}
-printGame(0, &currentBlock);
-}
-usleep(30000);
-}
-reset_terminal();
-printf("\033[2J\033[HThanks for playing!\n");
-return 0;
-}
+    srand(time(NULL));
+    init_terminal();
+    TetrisBlock currentBlock;
+    initGame(&currentBlock);
+    int tick_counter = 0;
+    int gravity_ticks = 10;
+    int stateLoss = 0;
+    while (gameRun) {
+        if (!stateLoss && checkLoss(&currentBlock)) {
+            stateLoss = 1;
+            printGame(1, &currentBlock);
+        }
+    if (kbhit()) {
+    char ch = getchar();
+    if (ch == 'x' || ch == 27) {
+        gameRun = 0;
+        break;
+    }
+    if (stateLoss && ch == 'r') {
+        stateLoss = 0;
+        initGame(&currentBlock);
+        tick_counter = 0;
+        continue;
+    }
+    if (!stateLoss) {
+        if (ch == 's') {
+            if (!updateBlock(&currentBlock, "down")) {
+                clearFullRow();
+                createNewBlock(&currentBlock);
+            }
+        tick_counter = 0;
+    }
+    else if (ch == 'a') updateBlock(&currentBlock, "left");
+    else if (ch == 'd') updateBlock(&currentBlock, "right");
+    else if (ch == 'q') updateBlock(&currentBlock, "c");
+    else if (ch == 'e') updateBlock(&currentBlock, "cc");
+    else if (ch == ' ') {
+    updateBlock(&currentBlock, "space");
+    clearFullRow();
+    createNewBlock(&currentBlock);
+    tick_counter = 0;
+    }
+    }
+    }
+    if (!stateLoss) {
+        tick_counter++;
+    if (tick_counter >= gravity_ticks) {
+    tick_counter = 0;
+    if (!updateBlock(&currentBlock, "down")) {
+    clearFullRow();
+    createNewBlock(&currentBlock);
+    }
+    }
+    printGame(0, &currentBlock);
+    }
+    usleep(30000);
+    }
+    reset_terminal();
+    printf("\033[2J\033[HThanks for playing!\n");
+    return 0;
+    }
