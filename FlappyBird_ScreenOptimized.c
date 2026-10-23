@@ -1,27 +1,4 @@
-/*
- * FlappyBird_dirty.c
- * ---------------------------------------------------------------------------
- * Same game as FlappyBird.c (same bird physics, pipe generation, difficulty
- * ramp, scoring, keys), but with a "change list" renderer that replaces the
- * old prevFrameArray full-grid comparison:
- *
- *   - Every mutation of gameArray (bird moves, pipes shift, pipe spawned,
- *     cell reset to background) records its coordinate on changeList[] via
- *     markDirty(y, x). When the bird or a pipe moves, both its PAST cell
- *     (reset to background) and its FUTURE cell are listed. A dirtyFlag grid
- *     de-duplicates within one frame.
- *   - Cells in the hidden spawn strip (x >= W - 3) are never listed because
- *     the original never drew them either.
- *   - printGame() walks ONLY changeList[], converts game (y, x) to terminal
- *     (row n, col m) with  n = y + 1,  m = x * 2 + 1  (each cell is 2 columns
- *     wide), jumps there with CSI n;m H ("\033[%d;%dH"), and prints that cell.
- *   - The score line is placed on row H + 1 and the cursor is left on row
- *     H + 2, which is exactly where the original left it, so the
- *     "Player hit ..." / "You died" messages appear in the same place.
- *
- * Gameplay logic is otherwise identical to the original.
- * ---------------------------------------------------------------------------
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,17 +10,15 @@
 #define H 24
 #define W 30
 #define BUFFER_SIZE 64
-#define VISIBLE_W (W - 3)      /* columns actually drawn, as in the original */
-#define CELL_COLS 2            /* each game cell is 2 terminal columns wide  */
+#define VISIBLE_W (W - 3
+#define CELL_COLS 2            
 
-// Struct to handle multi-datatype grid natively
 typedef struct {
-    int val;                  // 0, 1, 2, 3 for pipes/bird
-    char bg[BUFFER_SIZE];    // stores custom ANSI bg pixel string
-    int is_bg;                // flag indicating grid cell is background
+    int val;                  
+    char bg[BUFFER_SIZE];    
+    int is_bg;                
 } Cell;
 
-// Global Variables
 Cell gameArray[H][W];
 int gameRun = 1;
 char birdEye = '^';
@@ -58,9 +33,6 @@ int colorList[4][3] = {
     {255, 208, 1}    // 3: Bird
 };
 
-/* ------------------------------------------------------------------ */
-/* Change-list (dirty cell) tracking                                   */
-/* ------------------------------------------------------------------ */
 typedef struct {
     int y;
     int x;
@@ -71,7 +43,7 @@ static int    changeCount = 0;
 static int    dirtyFlag[H][W];
 
 static void markDirty(int y, int x) {
-    if (y < 0 || y >= H || x < 0 || x >= VISIBLE_W) return;   /* off-screen strip ignored */
+    if (y < 0 || y >= H || x < 0 || x >= VISIBLE_W) return;  
     if (dirtyFlag[y][x]) return;
     dirtyFlag[y][x] = 1;
     changeList[changeCount].y = y;
@@ -85,13 +57,11 @@ static void markAllDirty(void) {
             markDirty(y, x);
 }
 
-/* Two cells look the same on screen if is_bg and val agree
-   (this is the exact test the original prevFrameArray compare used). */
+
 static int cellsLookSame(const Cell* a, const Cell* b) {
     return a->is_bg == b->is_bg && a->val == b->val;
 }
 
-// Terminal management functions
 struct termios old_settings;
 void init_terminal() {
     struct termios new_settings;
@@ -124,13 +94,11 @@ void getBGpixel(int y, int x, Cell* cell) {
     }
 }
 
-/* Helper: reset a grid cell to background AND list the change. */
 static void setBackground(int y, int x) {
     getBGpixel(y, x, &gameArray[y][x]);
     markDirty(y, x);
 }
 
-/* Helper: put a pipe/bird value into a grid cell AND list the change. */
 static void setValue(int y, int x, int val) {
     gameArray[y][x].val = val;
     gameArray[y][x].is_bg = 0;
@@ -173,20 +141,18 @@ int shiftPipes() {
         for (int x = 0; x < W; x++) {
             if (!gameArray[y][x].is_bg && (gameArray[y][x].val == 0 || gameArray[y][x].val == 1 || gameArray[y][x].val == 2)) {
                 if (x == 0) {
-                    setBackground(y, x);                       /* PAST cell leaves screen */
+                    setBackground(y, x);                       
                 } else {
                     if (!gameArray[y][x - 1].is_bg && gameArray[y][x - 1].val == 3) {
                         printf("Player hit pipe\n");
-                        return 0; // Collision crash trigger
+                        return 0; 
                     }
-                    /* FUTURE cell: copy pipe one column left, list it only if it changes */
                     if (!cellsLookSame(&gameArray[y][x - 1], &gameArray[y][x])) {
                         gameArray[y][x - 1] = gameArray[y][x];
                         markDirty(y, x - 1);
                     } else {
                         gameArray[y][x - 1] = gameArray[y][x];
                     }
-                    /* PAST cell: trailing edge of the pipe becomes background */
                     if (x + 1 >= W || gameArray[y][x + 1].is_bg) {
                         setBackground(y, x);
                     }
@@ -197,13 +163,11 @@ int shiftPipes() {
     return 1;
 }
 
-/* ------------------------------------------------------------------ */
-/* Rendering                                                           */
-/* ------------------------------------------------------------------ */
+
 static void drawCell(int y, int x) {
-    int n = y + 1;                 /* terminal row    (1-based) */
-    int m = x * CELL_COLS + 1;     /* terminal column (1-based) */
-    printf("\033[%d;%dH", n, m);   /* CSI n ; m H */
+    int n = y + 1;                 
+    int m = x * CELL_COLS + 1;     
+    printf("\033[%d;%dH", n, m);   
 
     if (gameArray[y][x].is_bg) {
         printf("%s%s", gameArray[y][x].bg, gameArray[y][x].bg);
@@ -220,13 +184,11 @@ static void drawCell(int y, int x) {
 void printGame() {
     printf("\033[?25l");
 
-    /* If only the bird's eye glyph changed, that cell still needs a repaint. */
     if (birdEye != prevBirdEye) {
         markDirty(birdY, 8);
         prevBirdEye = birdEye;
     }
 
-    /* Walk ONLY the listed changes and repaint them in place. */
     for (int i = 0; i < changeCount; i++) {
         int y = changeList[i].y;
         int x = changeList[i].x;
@@ -252,9 +214,9 @@ int moveBird() {
             printf("Player hit pipe\n");
             return 0;
         } else {
-            setBackground(birdY, 8);     /* PAST bird cell   */
+            setBackground(birdY, 8);     
             birdY = newY;
-            setValue(birdY, 8, 3);       /* FUTURE bird cell */
+            setValue(birdY, 8, 3);       
         }
     }
     return 1;
@@ -269,9 +231,7 @@ int main() {
         printf("\033[2J\033[H\033[?25l");
         fflush(stdout);
 
-        /* Fresh board: fill with background, then list every visible cell
-           once so the first frame paints the full screen. After that, only
-           changed cells are ever written. */
+
         changeCount = 0;
         memset(dirtyFlag, 0, sizeof(dirtyFlag));
         for (int y = 0; y < H; y++) {
@@ -317,13 +277,10 @@ int main() {
             if (!shiftPipes()) break;
             printGame();
 
-            /* Score line on the row under the board; cursor ends on row H+2
-               (same place the original left it). */
             printf("\033[%d;1H\033[2K", H + 1);
             printf("Score=%d GameDifficulty=%.2f\n", score, gameDifficulty);
             fflush(stdout);
 
-            // Match Python's exact starting loop pause until space/w is hit
             if (pipeIter == -1) {
                 while (1) {
                     if (kbhit()) {
@@ -340,7 +297,6 @@ int main() {
 
             if (!gameRun) break;
 
-            // Microsecond pacing conversion math
             long sleepTime = (long)((0.07 - gameDifficulty) * 1000000);
             if (sleepTime > 0) usleep(sleepTime);
 
