@@ -1,20 +1,4 @@
-/*
- * Snake_dirty.c
- * ---------------------------------------------------------------------------
- * Same game as Snake.c (same controls, speed, collision rules, colors), but
- * with a "change list" renderer:
- *
- *   - A snakeGrid[][] occupancy array mirrors the game state.
- *   - Every time a cell changes (head drawn, tail erased, food moved) the
- *     coordinate is pushed onto changeList[] via markDirty(y, x). A dirtyFlag
- *     grid prevents the same cell being listed twice in one frame.
- *   - printFrame() walks ONLY changeList[], converts each game (y, x) into a
- *     terminal (row n, col m) using  n = y + 1,  m = x * definition + 1,
- *     jumps there with CSI n;m H  ("\033[%d;%dH") and prints just that cell.
- *
- * Nothing else about gameplay was altered.
- * ---------------------------------------------------------------------------
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -31,41 +15,34 @@ typedef struct {
     int y;
 } Point;
 
-/* ------------------------------------------------------------------ */
-/* Change-list (dirty cell) tracking                                   */
-/* ------------------------------------------------------------------ */
+
 typedef struct {
     int y;
     int x;
 } Change;
 
-static Change changeList[GAME_HEIGHT * GAME_WIDTH]; /* coords needing redraw */
+static Change changeList[GAME_HEIGHT * GAME_WIDTH]; 
 static int    changeCount = 0;
-static int    dirtyFlag[GAME_HEIGHT][GAME_WIDTH];  /* de-dupe per frame      */
+static int    dirtyFlag[GAME_HEIGHT][GAME_WIDTH]; 
 
-/* Occupancy mirror of the board: 1 where a snake segment sits, else 0. */
 static int snakeGrid[GAME_HEIGHT][GAME_WIDTH];
 
-/* Record that game cell (y, x) must be redrawn on the next frame. */
 static void markDirty(int y, int x) {
     if (y < 0 || y >= GAME_HEIGHT || x < 0 || x >= GAME_WIDTH) return;
-    if (dirtyFlag[y][x]) return;           /* already listed this frame */
+    if (dirtyFlag[y][x]) return;           
     dirtyFlag[y][x] = 1;
     changeList[changeCount].y = y;
     changeList[changeCount].x = x;
     changeCount++;
 }
 
-/* Used once at start-up so the first frame paints the whole board. */
 static void markAllDirty(void) {
     for (int y = 0; y < GAME_HEIGHT; y++)
         for (int x = 0; x < GAME_WIDTH; x++)
             markDirty(y, x);
 }
 
-/* ------------------------------------------------------------------ */
-/* Terminal helpers (unchanged)                                        */
-/* ------------------------------------------------------------------ */
+
 struct termios old_settings;
 
 void init_terminal() {
@@ -88,23 +65,19 @@ int kbhit() {
     return select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
 }
 
-/* ------------------------------------------------------------------ */
-/* Rendering: only the listed changes are written to the terminal      */
-/* ------------------------------------------------------------------ */
-/* Draw one game cell at its terminal position.                        */
+
 static void drawCell(int y, int x, Point food, int definition, const char* pixel) {
-    int color_code = 8;                       /* background */
+    int color_code = 8;                       
     if (snakeGrid[y][x]) {
-        color_code = 10;                      /* snake      */
+        color_code = 10;                      
     } else if (x == food.x && y == food.y) {
-        color_code = 1;                       /* food       */
+        color_code = 1;                      
     }
 
-    /* game (y, x)  ->  terminal (n, m): rows/cols are 1-based,
-       and each game cell is `definition` characters wide.               */
+
     int n = y + 1;
     int m = x * definition + 1;
-    printf("\033[%d;%dH", n, m);              /* CSI n ; m H */
+    printf("\033[%d;%dH", n, m);              
     for (int d = 0; d < definition; d++) {
         printf(pixel, color_code);
     }
@@ -118,12 +91,10 @@ static void printFrame(Point food, int definition, const char* pixel) {
         dirtyFlag[y][x] = 0;
     }
     changeCount = 0;
-    /* Park the cursor under the board so stray output never lands on it. */
     printf("\033[%d;1H", GAME_HEIGHT + 1);
     fflush(stdout);
 }
 
-/* ------------------------------------------------------------------ */
 int main() {
     srand(time(NULL));
     init_terminal();
@@ -139,7 +110,6 @@ int main() {
     int definition = 2;
     char pixel[] = "\033[48;5;%dm \033[0m";
 
-    /* Initial board state + full first paint */
     snakeGrid[snake[0].y][snake[0].x] = 1;
     printf("\033[2J\033[?25l");
     fflush(stdout);
@@ -178,24 +148,20 @@ int main() {
         if (self_collision) break;
 
         if (head.x == food.x && head.y == food.y) {
-            /* Grow: shift every segment back, insert new head */
             for (int i = snake_len; i > 0; i--) {
                 snake[i] = snake[i - 1];
             }
             snake[0] = head;
             snake_len++;
 
-            /* --- change list: FUTURE coordinate of the head --- */
             snakeGrid[head.y][head.x] = 1;
-            markDirty(head.y, head.x);           /* (was the food cell) */
+            markDirty(head.y, head.x);          
 
-            /* --- change list: PAST + FUTURE coordinates of the food --- */
-            markDirty(food.y, food.x);           /* old food spot (same as head here) */
+            markDirty(food.y, food.x);           
             food.x = rand() % GAME_WIDTH;
             food.y = rand() % GAME_HEIGHT;
-            markDirty(food.y, food.x);           /* new food spot */
+            markDirty(food.y, food.x);           
         } else {
-            /* Move: remember the tail BEFORE shifting so we can erase it */
             Point tail = snake[snake_len - 1];
 
             for (int i = snake_len - 1; i > 0; i--) {
@@ -203,16 +169,13 @@ int main() {
             }
             snake[0] = head;
 
-            /* --- change list: PAST coordinate (tail leaves) --- */
             snakeGrid[tail.y][tail.x] = 0;
             markDirty(tail.y, tail.x);
 
-            /* --- change list: FUTURE coordinate (head arrives) --- */
             snakeGrid[head.y][head.x] = 1;
             markDirty(head.y, head.x);
         }
 
-        /* Only the cells in changeList[] get written to the terminal */
         printFrame(food, definition, pixel);
 
         if (dy != 0) {
